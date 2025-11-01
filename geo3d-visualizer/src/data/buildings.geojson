@@ -1,0 +1,58 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "height": 20 },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[0,0],[10,0],[10,10],[0,10],[0,0]]]
+      }
+    }
+    ,
+    {
+      "type": "Feature",
+      "properties": { "height": 50 },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[15,15],[25,15],[25,25],[15,25],[15,15]]]
+      }
+    }
+    ,
+    {
+        "type": "Feature",
+        "properties": { "height": 80 },
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [[[30,30],[40,30],[40,40],[30,40],[30,30]]]
+        }
+    }
+    ,
+    {
+        "type": "Feature",
+        "properties": { "height": 35 },
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [[[45,45],[55,45],[55,55],[45,55],[45,45]]]
+        }
+    }
+    ,
+    {
+        "type": "Feature",
+        "properties": { "height": 60 },
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [[[60,60],[70,60],[70,70],[60,70],[60,60]]]
+        }
+    }
+    ,
+    {
+        "type": "Feature",
+        "properties": { "height": 90 },
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [[[75,75],[85,75],[85,85],[75,85],[75,75]]]
+        }
+    }
+  ]
+}
