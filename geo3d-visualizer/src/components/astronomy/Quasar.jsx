@@ -89,8 +89,8 @@ const QuasarDisk = () => {
 
     const uniforms = useMemo(() => ({
         uTime: { value: 0 },
-        uColorInner: { value: new THREE.Color('#ffffff') },
-        uColorOuter: { value: new THREE.Color('#4400ff') }
+        uColorInner: { value: new THREE.Color('#ffaa00') }, // Warmer inner color
+        uColorOuter: { value: new THREE.Color('#aa00ff') }  // Cooler outer color
     }), []);
 
     const vertexShader = `
@@ -110,25 +110,50 @@ const QuasarDisk = () => {
     uniform vec3 uColorInner;
     uniform vec3 uColorOuter;
     
+    // Simplex noise function (simplified)
+    vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+    vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+    vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
+    float snoise(vec2 v) {
+        const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+        vec2 i  = floor(v + dot(v, C.yy) );
+        vec2 x0 = v -   i + dot(i, C.xx);
+        vec2 i1;
+        i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+        vec4 x12 = x0.xyxy + C.xxzz;
+        x12.xy -= i1;
+        i = mod289(i);
+        vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 )) + i.x + vec3(0.0, i1.x, 1.0 ));
+        vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+        m = m*m ;
+        return 105.0 * dot( m*m, vec3( dot(p,x0), dot(p.yz,x12.xy), dot(p.z,x12.zw) ) );
+    }
+
     void main() {
       float r = length(vPos.xy);
       float angle = atan(vPos.y, vPos.x);
       
-      // Fast swirling noise
-      float noise = sin(angle * 10.0 - uTime * 5.0 + r * 5.0);
-      float noise2 = cos(angle * 20.0 - uTime * 8.0 + r * 10.0);
+      // Doppler beaming effect (brighter on one side)
+      float doppler = 1.0 + 0.5 * sin(angle); 
+
+      // Complex noise pattern for accretion flow
+      float noise = snoise(vec2(angle * 5.0 - uTime * 2.0, r * 2.0 - uTime));
+      float noise2 = snoise(vec2(angle * 10.0 - uTime * 3.0, r * 5.0));
       
-      // Bright core transition
-      vec3 color = mix(uColorInner, uColorOuter, smoothstep(1.0, 3.5, r));
+      // Color gradient based on radius and temperature
+      vec3 color = mix(uColorInner, uColorOuter, smoothstep(1.0, 4.0, r));
       
-      // Add turbulence
-      color += vec3(noise + noise2) * 0.2;
+      // Add turbulence and detail
+      color += vec3(noise * 0.3 + noise2 * 0.1);
       
-      // Intense brightness
-      color *= 2.0;
+      // Apply Doppler beaming
+      color *= doppler;
+
+      // Intense brightness at the center
+      color *= 1.5 + 2.0 / (r * r);
       
       // Soft edges
-      float alpha = smoothstep(4.0, 3.0, r) * smoothstep(0.8, 1.2, r);
+      float alpha = smoothstep(4.5, 3.5, r) * smoothstep(0.8, 1.2, r);
       
       gl_FragColor = vec4(color, alpha);
     }
@@ -142,7 +167,7 @@ const QuasarDisk = () => {
 
     return (
         <mesh ref={meshRef} rotation={[Math.PI / 2.5, 0, 0]}>
-            <ringGeometry args={[1.0, 4, 128]} />
+            <ringGeometry args={[1.0, 4.5, 128]} />
             <shaderMaterial
                 vertexShader={vertexShader}
                 fragmentShader={fragmentShader}
@@ -161,20 +186,20 @@ const Quasar = () => {
         <group>
             {/* Central Supermassive Black Hole (The "Eye") */}
             <mesh>
-                <sphereGeometry args={[0.9, 64, 64]} />
+                <sphereGeometry args={[0.95, 64, 64]} />
                 <meshBasicMaterial color="#000000" />
             </mesh>
 
             {/* Blinding Central Glow */}
             <mesh>
-                <sphereGeometry args={[1.1, 32, 32]} />
-                <meshBasicMaterial color="#ffffff" transparent opacity={0.8} blending={THREE.AdditiveBlending} />
+                <sphereGeometry args={[1.2, 32, 32]} />
+                <meshBasicMaterial color="#ffffff" transparent opacity={0.6} blending={THREE.AdditiveBlending} />
             </mesh>
 
             {/* Large Halo */}
             <mesh>
-                <sphereGeometry args={[6, 32, 32]} />
-                <meshBasicMaterial color="#2200ff" transparent opacity={0.1} blending={THREE.AdditiveBlending} side={THREE.BackSide} />
+                <sphereGeometry args={[8, 32, 32]} />
+                <meshBasicMaterial color="#2200ff" transparent opacity={0.05} blending={THREE.AdditiveBlending} side={THREE.BackSide} />
             </mesh>
 
             <QuasarDisk />

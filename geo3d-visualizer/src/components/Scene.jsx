@@ -13,6 +13,8 @@ import BlackHole from './astronomy/BlackHole';
 import Quasar from './astronomy/Quasar';
 import Pulsar from './astronomy/Pulsar';
 import Galaxy from './astronomy/Galaxy';
+import Nebula from './astronomy/Nebula';
+import Supernova from './astronomy/Supernova';
 
 function Scene() {
     const [timeOfDay, setTimeOfDay] = useState('day');
@@ -131,6 +133,8 @@ function Scene() {
                         <option value="quasar">✨ Quasar</option>
                         <option value="pulsar">💫 Pulsar</option>
                         <option value="galaxy">🌌 Galaxy</option>
+                        <option value="nebula">🌫️ Nebula</option>
+                        <option value="supernova">💥 Supernova</option>
                     </select>
                 </div>
 
@@ -254,6 +258,8 @@ function Scene() {
                 {selectedObject === 'quasar' && <Quasar />}
                 {selectedObject === 'pulsar' && <Pulsar />}
                 {selectedObject === 'galaxy' && <Galaxy />}
+                {selectedObject === 'nebula' && <Nebula />}
+                {selectedObject === 'supernova' && <Supernova />}
 
                 <OrbitControls
                     enableDamping
